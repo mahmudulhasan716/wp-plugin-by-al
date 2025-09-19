@@ -1,0 +1,16 @@
+/**
+ * Admin styles for Dokan Business License Manager
+ *
+ * @package Dokan_Business_License
+ * @since 1.0.0
+ */
+
+/* Basic admin notice styles */
+.notice.notice-error {
+    border-left-color: #dc3545;
+    background: #f8d7da;
+}
+
+.notice.notice-error .notice-text {
+    color: #721c24;
+}

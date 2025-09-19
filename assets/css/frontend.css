@@ -1,0 +1,304 @@
+/**
+ * Frontend styles for Dokan Business License Manager
+ *
+ * @package Dokan_Business_License
+ * @since 1.0.0
+ */
+
+/* Business License Field in Registration Form */
+.dokan-business-license-field {
+    margin-bottom: 20px;
+    padding: 15px;
+    background: #f8f9fa;
+    border: 1px solid #e9ecef;
+    border-radius: 8px;
+}
+
+.dokan-business-license-field .dokan-form-label {
+    font-weight: 600;
+    color: #495057;
+    margin-bottom: 8px;
+    display: block;
+}
+
+.dokan-business-license-field .dokan-form-control {
+    width: 100%;
+    padding: 12px;
+    border: 2px solid #dee2e6;
+    border-radius: 6px;
+    font-size: 14px;
+    transition: border-color 0.3s ease;
+}
+
+.dokan-business-license-field .dokan-form-control:focus {
+    border-color: #007cba;
+    outline: none;
+    box-shadow: 0 0 0 3px rgba(0, 124, 186, 0.1);
+}
+
+.dokan-business-license-field .dokan-form-help {
+    margin-top: 8px;
+    font-size: 12px;
+    color: #6c757d;
+    font-style: italic;
+}
+
+.business-license-validation-message {
+    margin-top: 8px;
+    padding: 8px 12px;
+    border-radius: 4px;
+    font-size: 12px;
+    font-weight: 500;
+}
+
+.business-license-validation-message.error {
+    background: #f8d7da;
+    color: #721c24;
+    border: 1px solid #f5c6cb;
+}
+
+.business-license-validation-message.success {
+    background: #d4edda;
+    color: #155724;
+    border: 1px solid #c3e6cb;
+}
+
+/* Business License Display on Store Page */
+.dokan-business-license-display {
+    background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+    border: 1px solid #dee2e6;
+    border-radius: 12px;
+    padding: 20px;
+    margin: 20px 0;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    position: relative;
+    overflow: hidden;
+}
+
+.dokan-business-license-display::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 4px;
+    background: linear-gradient(90deg, #007cba, #28a745);
+}
+
+.business-license-info {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+}
+
+.license-icon {
+    color: #28a745;
+    font-size: 28px;
+    background: rgba(40, 167, 69, 0.1);
+    padding: 12px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    min-width: 52px;
+    min-height: 52px;
+}
+
+.license-details {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    flex: 1;
+}
+
+.license-label {
+    font-weight: 600;
+    color: #495057;
+    font-size: 14px;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.license-value {
+    font-family: 'Courier New', 'Monaco', monospace;
+    font-weight: bold;
+    color: #007cba;
+    font-size: 18px;
+    background: rgba(0, 124, 186, 0.1);
+    padding: 8px 12px;
+    border-radius: 6px;
+    display: inline-block;
+    border: 1px solid rgba(0, 124, 186, 0.2);
+}
+
+/* Business License Badge in Store Header */
+.dokan-store-business-license {
+    margin-top: 15px;
+    text-align: center;
+}
+
+.license-badge {
+    background: linear-gradient(135deg, #28a745, #20c997);
+    color: white;
+    padding: 8px 16px;
+    border-radius: 25px;
+    font-size: 13px;
+    font-weight: 600;
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    box-shadow: 0 4px 8px rgba(40, 167, 69, 0.3);
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.license-badge:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 12px rgba(40, 167, 69, 0.4);
+}
+
+.license-badge i {
+    font-size: 14px;
+}
+
+/* Store Settings Form */
+.dokan-settings-content .business_license_id {
+    margin-bottom: 25px;
+}
+
+.dokan-settings-content .business_license_id label {
+    font-weight: 600;
+    color: #495057;
+    margin-bottom: 8px;
+    display: block;
+}
+
+.dokan-settings-content .business_license_id input[type="text"] {
+    width: 100%;
+    max-width: 400px;
+    padding: 12px;
+    border: 2px solid #dee2e6;
+    border-radius: 6px;
+    font-size: 14px;
+    transition: border-color 0.3s ease;
+}
+
+.dokan-settings-content .business_license_id input[type="text"]:focus {
+    border-color: #007cba;
+    outline: none;
+    box-shadow: 0 0 0 3px rgba(0, 124, 186, 0.1);
+}
+
+.dokan-settings-content .business_license_id .description {
+    margin-top: 8px;
+    font-size: 12px;
+    color: #6c757d;
+    font-style: italic;
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+    .business-license-info {
+        flex-direction: column;
+        text-align: center;
+        gap: 12px;
+    }
+    
+    .license-icon {
+        font-size: 24px;
+        min-width: 48px;
+        min-height: 48px;
+    }
+    
+    .license-value {
+        font-size: 16px;
+        padding: 6px 10px;
+    }
+    
+    .dokan-business-license-display {
+        padding: 15px;
+        margin: 15px 0;
+    }
+    
+    .license-badge {
+        padding: 6px 12px;
+        font-size: 12px;
+    }
+}
+
+@media (max-width: 480px) {
+    .dokan-business-license-field {
+        padding: 12px;
+    }
+    
+    .dokan-business-license-field .dokan-form-control {
+        padding: 10px;
+        font-size: 13px;
+    }
+    
+    .license-value {
+        font-size: 14px;
+        padding: 4px 8px;
+    }
+    
+    .license-label {
+        font-size: 13px;
+    }
+}
+
+/* Animation for validation messages */
+@keyframes slideIn {
+    from {
+        opacity: 0;
+        transform: translateY(-10px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.business-license-validation-message {
+    animation: slideIn 0.3s ease;
+}
+
+/* Loading state */
+.dokan-business-license-field.loading .dokan-form-control {
+    background-image: url('data:image/svg+xml;charset=utf-8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12a9 9 0 11-6.219-8.56"/></svg>');
+    background-repeat: no-repeat;
+    background-position: right 12px center;
+    background-size: 16px;
+    animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+    from {
+        transform: rotate(0deg);
+    }
+    to {
+        transform: rotate(360deg);
+    }
+}
+
+/* Success state */
+.dokan-business-license-field.success .dokan-form-control {
+    border-color: #28a745;
+    background-color: rgba(40, 167, 69, 0.05);
+}
+
+.dokan-business-license-field.success .dokan-form-control:focus {
+    border-color: #28a745;
+    box-shadow: 0 0 0 3px rgba(40, 167, 69, 0.1);
+}
+
+/* Error state */
+.dokan-business-license-field.error .dokan-form-control {
+    border-color: #dc3545;
+    background-color: rgba(220, 53, 69, 0.05);
+}
+
+.dokan-business-license-field.error .dokan-form-control:focus {
+    border-color: #dc3545;
+    box-shadow: 0 0 0 3px rgba(220, 53, 69, 0.1);
+}
