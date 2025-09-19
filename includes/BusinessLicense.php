@@ -7,6 +7,11 @@ class BusinessLicense {
         add_action('dokan_seller_wizard_store_setup_after_address_field', array($this, 'add_business_license_field'));
         add_action('dokan_seller_wizard_store_field_save', array($this, 'save_business_license_field'));
         add_action('dokan_seller_wizard_store_setup_before_map_field', array($this, 'validate_business_license_field'));
+        // Vendor Dashboard → Settings → Store Settings: show and save Business License ID
+        add_action('dokan_settings_after_store_email', array($this, 'render_store_settings_field'), 10, 2);
+        add_filter('dokan_store_profile_settings_args', array($this, 'save_store_settings_field'), 10, 2);
+        // Vendor store page (banner area): inject below social icons using a hook
+        add_action('dokan_store_header_after_store_name', array($this, 'render_store_banner_business_license'), 99, 1);
     }
 
     public function init() {
@@ -110,5 +115,96 @@ class BusinessLicense {
             </script>
             <?php
         }
+    }
+
+    /**
+     * Render Business License ID field in Vendor Store Settings form
+     *
+     * @param int   $current_user
+     * @param array $profile_info
+     */
+    public function render_store_settings_field($current_user, $profile_info) {
+        $business_license_id = isset($profile_info['business_license_id']) ? esc_attr($profile_info['business_license_id']) : '';
+        ?>
+        <div class="dokan-form-group">
+            <label class="dokan-w3 dokan-control-label" for="business_license_id"><?php esc_html_e('Business License ID', 'wp-plugin-by-al'); ?></label>
+            <div class="dokan-w6">
+                <input id="business_license_id" name="business_license_id" value="<?php echo $business_license_id; ?>" class="dokan-form-control" type="text" required />
+            </div>
+        </div>
+        <?php
+    }
+
+    /**
+     * Save Business License ID from Vendor Store Settings form
+     *
+     * @param array $dokan_settings Current settings array to be saved
+     * @param int   $store_id       Vendor user ID
+     *
+     * @return array
+     */
+    public function save_store_settings_field($dokan_settings, $store_id) {
+        if (!isset($_POST['_wpnonce']) || !wp_verify_nonce(sanitize_key($_POST['_wpnonce']), 'dokan_store_settings_nonce')) {
+            return $dokan_settings;
+        }
+
+        $business_license_id = isset($_POST['business_license_id']) ? sanitize_text_field(wp_unslash($_POST['business_license_id'])) : '';
+
+        // Backend validation: required
+        if (defined('DOING_AJAX') && DOING_AJAX) {
+            $form_id = isset($_POST['form_id']) ? sanitize_text_field(wp_unslash($_POST['form_id'])) : '';
+            if ($form_id === 'store-form' && ('' === $business_license_id)) {
+                wp_send_json_error(array(__('Business License ID is required.', 'wp-plugin-by-al')));
+            }
+        }
+
+        // Persist in profile settings so it’s available across Dokan templates and APIs
+        $dokan_settings['business_license_id'] = $business_license_id;
+
+        return $dokan_settings;
+    }
+
+    /**
+     * Display Business License ID in the vendor store banner below social icons
+     * using a hook and a small DOM injection to place it right after the social block.
+     *
+     * @param mixed $store_user Vendor object
+     */
+    public function render_store_banner_business_license($store_user) {
+        if (!is_object($store_user) || !method_exists($store_user, 'get_id')) {
+            return;
+        }
+
+        $store_id = (int) $store_user->get_id();
+        $profile  = get_user_meta($store_id, 'dokan_profile_settings', true);
+        $business_license_id = isset($profile['business_license_id']) ? trim((string) $profile['business_license_id']) : '';
+
+        if ($business_license_id === '') {
+            return;
+        }
+
+        $text = sprintf(
+            /* translators: %s: Business License ID */
+            esc_html__('Business License ID: %s', 'wp-plugin-by-al'),
+            esc_html($business_license_id)
+        );
+        ?>
+        <script>
+        (function(){
+            var onReady = function(fn){ if(document.readyState!='loading'){ fn(); } else { document.addEventListener('DOMContentLoaded', fn); } };
+            onReady(function(){
+                var existingUl = document.querySelector('.store-social-wrapper ul.store-social');
+                if (!existingUl || !existingUl.parentNode) { return; }
+                var newUl = document.createElement('ul');
+                newUl.className = 'store-social dokan-store-business-license-list';
+                var li = document.createElement('li');
+                li.className = 'dokan-store-business-license';
+                li.textContent = <?php echo wp_json_encode($text); ?>;
+                newUl.appendChild(li);
+                existingUl.insertAdjacentElement('afterend', newUl);
+            });
+        })();
+        </script>
+        <?php
     }
 }

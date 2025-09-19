@@ -135,6 +135,7 @@
 .dokan-store-business-license {
     margin-top: 15px;
     text-align: center;
+    color:#000 !important;
 }
 
 .license-badge {
