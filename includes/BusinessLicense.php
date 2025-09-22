@@ -3,7 +3,6 @@
 class BusinessLicense {
 
     public function __construct() {
-        add_action('init', array($this, 'init'));
         add_action('dokan_seller_wizard_store_setup_after_address_field', array($this, 'add_business_license_field'));
         add_action('dokan_seller_wizard_store_field_save', array($this, 'save_business_license_field'));
         add_action('dokan_seller_wizard_store_setup_before_map_field', array($this, 'validate_business_license_field'));
@@ -12,11 +11,6 @@ class BusinessLicense {
         add_filter('dokan_store_profile_settings_args', array($this, 'save_store_settings_field'), 10, 2);
         // Vendor store page (banner area): inject below social icons using a hook
         add_action('dokan_store_header_after_store_name', array($this, 'render_store_banner_business_license'), 99, 1);
-    }
-
-    public function init() {
-        // Try multiple logging methods
-        error_log('BusinessLicense init() called');
     }
 
     /**

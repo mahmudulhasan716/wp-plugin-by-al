@@ -2,7 +2,6 @@
 
 class ProductMaterial {
     public function __construct() {
-        add_action('init', array($this, 'init'));
 
         // Render field on Dokan product forms (new/edit)
         add_action('dokan_new_product_form', array($this, 'render_field_in_form'), 90, 2);
@@ -19,10 +18,6 @@ class ProductMaterial {
 
         // Display on single product page
         add_action('woocommerce_product_meta_end', array($this, 'render_on_single_product'));
-    }
-
-    public function init() {
-        error_log('ProductMaterial init() called');
     }
 
     private function get_meta_key() {
