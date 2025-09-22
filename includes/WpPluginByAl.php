@@ -12,6 +12,7 @@ if (!defined('ABSPATH')) {
 
 require_once DOKAN_BUSINESS_LICENSE_PLUGIN_DIR . 'includes/BusinessLicense.php';
 require_once DOKAN_BUSINESS_LICENSE_PLUGIN_DIR . 'includes/ProductMaterial.php';
+require_once DOKAN_BUSINESS_LICENSE_PLUGIN_DIR . 'includes/CoAuthor.php';
 
 class WpPluginByAl {
 
@@ -60,6 +61,7 @@ class WpPluginByAl {
     public function init_classes() {
         new BusinessLicense();
         new ProductMaterial();
+        new CoAuthor();
     }
 
     /**
