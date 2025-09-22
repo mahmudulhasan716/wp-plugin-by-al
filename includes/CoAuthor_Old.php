@@ -17,7 +17,7 @@ class CoAuthor {
         add_action('dokan_load_custom_template', array($this, 'co_vendor_dashboard_content'));
         add_action('dokan_render_co_vendor_products_template', array($this, 'render_co_vendor_products_template'), 11);
         
-        // Email notifications for co-vendors using Dokan's email system
+        // Email notifications for co-vendors
         add_action('woocommerce_order_status_processing', array($this, 'send_co_vendor_order_notification'));
         add_action('woocommerce_order_status_completed', array($this, 'send_co_vendor_order_notification'));
         
@@ -136,15 +136,6 @@ class CoAuthor {
     }
 
     /**
-     * Register co-vendor email class with Dokan
-     */
-    public function register_co_vendor_email_class($email_classes) {
-        require_once dirname(__FILE__) . '/../Emails/CoVendorOrder.php';
-        $email_classes['Dokan_Email_Co_Vendor_Order'] = new \WeDevs\Dokan\Emails\CoVendorOrder();
-        return $email_classes;
-    }
-
-    /**
      * Add Co-Vendor menu to Dokan dashboard
      */
     public function add_co_vendor_menu($menus) {
@@ -177,6 +168,169 @@ class CoAuthor {
                 do_action('dokan_render_co_vendor_products_template', 'listing');
             }
         }
+    }
+
+    /**
+     * Render co-vendor products content
+     */
+    public function render_co_vendor_content() {
+        $current_user_id = get_current_user_id();
+        $co_authored_products = $this->get_co_authored_products($current_user_id);
+        
+        if (empty($co_authored_products)): ?>
+            <div class="dokan-no-products">
+                <div class="dokan-no-products-icon">
+                    <i class="fa fa-users"></i>
+                </div>
+                <h3><?php esc_html_e('No Co-Vendor Products', 'wp-plugin-by-al'); ?></h3>
+                <p><?php esc_html_e('You are not assigned as a co-author for any products yet.', 'wp-plugin-by-al'); ?></p>
+            </div>
+        <?php else: ?>
+            <div class="dokan-products-listing">
+                <div class="dokan-products-header">
+                    <h3><?php printf(esc_html__('Products where you are Co-Author (%d)', 'wp-plugin-by-al'), count($co_authored_products)); ?></h3>
+                </div>
+                
+                <div class="dokan-products-table">
+                    <table class="dokan-table">
+                        <thead>
+                            <tr>
+                                <th><?php esc_html_e('Product', 'wp-plugin-by-al'); ?></th>
+                                <th><?php esc_html_e('Main Vendor', 'wp-plugin-by-al'); ?></th>
+                                <th><?php esc_html_e('Status', 'wp-plugin-by-al'); ?></th>
+                                <th><?php esc_html_e('Price', 'wp-plugin-by-al'); ?></th>
+                                <th><?php esc_html_e('Date', 'wp-plugin-by-al'); ?></th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <?php foreach ($co_authored_products as $product): ?>
+                                <?php 
+                                $main_vendor = get_userdata($product->post_author);
+                                $product_obj = wc_get_product($product->ID);
+                                ?>
+                                <tr>
+                                    <td>
+                                        <div class="dokan-product-title">
+                                            <a href="<?php echo get_permalink($product->ID); ?>" target="_blank">
+                                                <?php echo esc_html($product->post_title); ?>
+                                            </a>
+                                        </div>
+                                    </td>
+                                    <td>
+                                        <div class="dokan-vendor-name">
+                                            <?php echo esc_html($main_vendor->display_name); ?>
+                                        </div>
+                                    </td>
+                                    <td>
+                                        <span class="dokan-product-status status-<?php echo esc_attr($product->post_status); ?>">
+                                            <?php echo esc_html(ucfirst($product->post_status)); ?>
+                                        </span>
+                                    </td>
+                                    <td>
+                                        <?php if ($product_obj): ?>
+                                            <?php echo $product_obj->get_price_html(); ?>
+                                        <?php else: ?>
+                                            <?php esc_html_e('N/A', 'wp-plugin-by-al'); ?>
+                                        <?php endif; ?>
+                                    </td>
+                                    <td>
+                                        <?php echo esc_html(date_i18n(get_option('date_format'), strtotime($product->post_date))); ?>
+                                    </td>
+                                </tr>
+                            <?php endforeach; ?>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        <?php endif; ?>
+        
+        <style>
+        .dokan-no-products {
+            text-align: center;
+            padding: 60px 20px;
+        }
+        .dokan-no-products-icon {
+            font-size: 48px;
+            color: #ddd;
+            margin-bottom: 20px;
+        }
+        .dokan-no-products h3 {
+            margin-bottom: 10px;
+            color: #333;
+        }
+        .dokan-no-products p {
+            color: #666;
+            font-size: 16px;
+        }
+        .dokan-products-listing {
+            background: #fff;
+            border: 1px solid #e1e1e1;
+            border-radius: 4px;
+            overflow: hidden;
+        }
+        .dokan-products-header {
+            background: #f8f9fa;
+            padding: 20px;
+            border-bottom: 1px solid #e1e1e1;
+        }
+        .dokan-products-header h3 {
+            margin: 0;
+            color: #333;
+        }
+        .dokan-products-table {
+            overflow-x: auto;
+        }
+        .dokan-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 0;
+        }
+        .dokan-table th,
+        .dokan-table td {
+            padding: 15px;
+            text-align: left;
+            border-bottom: 1px solid #e1e1e1;
+        }
+        .dokan-table th {
+            background: #f8f9fa;
+            font-weight: 600;
+            color: #333;
+        }
+        .dokan-table tr:hover {
+            background: #f8f9fa;
+        }
+        .dokan-product-title a {
+            color: #0073aa;
+            text-decoration: none;
+            font-weight: 500;
+        }
+        .dokan-product-title a:hover {
+            text-decoration: underline;
+        }
+        .dokan-vendor-name {
+            color: #666;
+        }
+        .dokan-product-status {
+            padding: 4px 8px;
+            border-radius: 3px;
+            font-size: 12px;
+            font-weight: 500;
+            text-transform: uppercase;
+        }
+        .status-publish {
+            background: #d4edda;
+            color: #155724;
+        }
+        .status-draft {
+            background: #fff3cd;
+            color: #856404;
+        }
+        .status-pending {
+            background: #cce5ff;
+            color: #004085;
+        }
+        </style>
+        <?php
     }
 
     /**
@@ -397,8 +551,18 @@ class CoAuthor {
             font-weight: 500;
             text-transform: uppercase;
         }
-        
-        
+        .status-publish {
+            background: #d4edda;
+            color: #155724;
+        }
+        .status-draft {
+            background: #fff3cd;
+            color: #856404;
+        }
+        .status-pending {
+            background: #cce5ff;
+            color: #004085;
+        }
         .dokan-product-actions {
             display: flex;
             gap: 5px;
@@ -423,7 +587,7 @@ class CoAuthor {
     }
 
     /**
-     * Send email notification to co-vendors when their products are ordered using Dokan's email system
+     * Send email notification to co-vendors when their products are ordered
      */
     public function send_co_vendor_order_notification($order_id) {
         $order = wc_get_order($order_id);
@@ -444,11 +608,211 @@ class CoAuthor {
                 $co_vendor = get_userdata($co_author_id);
                 
                 if ($co_vendor && $co_vendor->user_email) {
-                    // Use Dokan's email system
-                    do_action('dokan_co_vendor_order_notification', $co_vendor, $order, $product_id);
+                    $this->send_co_vendor_email($co_vendor, $order, $product_id);
                     $co_vendors_notified[] = $co_author_id;
                 }
             }
+        }
+    }
+
+    /**
+     * Send email to co-vendor
+     */
+    public function send_co_vendor_email($co_vendor, $order, $product_id) {
+        $product = wc_get_product($product_id);
+        $main_vendor = get_userdata($order->get_user_id());
+        
+        // Email subject
+        $subject = sprintf(
+            __('Co-Author Product Order Notification - Order #%s', 'wp-plugin-by-al'),
+            $order->get_order_number()
+        );
+        
+        // Email content
+        $message = $this->get_co_vendor_email_template($co_vendor, $order, $product, $main_vendor);
+        
+        // Email headers
+        $headers = array(
+            'Content-Type: text/html; charset=UTF-8',
+            'From: ' . get_bloginfo('name') . ' <' . get_option('admin_email') . '>'
+        );
+        
+        // Send email
+        $sent = wp_mail($co_vendor->user_email, $subject, $message, $headers);
+        
+        // Log the email sending
+        if ($sent) {
+            error_log("Co-vendor email sent to: " . $co_vendor->user_email . " for order: " . $order->get_order_number());
+        } else {
+            error_log("Failed to send co-vendor email to: " . $co_vendor->user_email . " for order: " . $order->get_order_number());
+        }
+    }
+
+    /**
+     * Get email template for co-vendor notification
+     */
+    public function get_co_vendor_email_template($co_vendor, $order, $product, $main_vendor) {
+        $order_number = $order->get_order_number();
+        $order_date = $order->get_date_created()->date_i18n(get_option('date_format') . ' ' . get_option('time_format'));
+        $order_total = $order->get_formatted_order_total();
+        $order_status = wc_get_order_status_name($order->get_status());
+        
+        $product_name = $product ? $product->get_name() : __('Unknown Product', 'wp-plugin-by-al');
+        $product_url = $product ? get_permalink($product->get_id()) : '#';
+        
+        $main_vendor_name = $main_vendor ? $main_vendor->display_name : __('Unknown Vendor', 'wp-plugin-by-al');
+        
+        $site_name = get_bloginfo('name');
+        $site_url = home_url();
+        
+        $template = "
+        <!DOCTYPE html>
+        <html>
+        <head>
+            <meta charset='UTF-8'>
+            <meta name='viewport' content='width=device-width, initial-scale=1.0'>
+            <title>Co-Author Product Order Notification</title>
+            <style>
+                body { font-family: Arial, sans-serif; line-height: 1.6; color: #333; margin: 0; padding: 0; }
+                .container { max-width: 600px; margin: 0 auto; padding: 20px; }
+                .header { background: #0073aa; color: white; padding: 20px; text-align: center; }
+                .content { background: #f9f9f9; padding: 30px; }
+                .order-details { background: white; padding: 20px; margin: 20px 0; border-radius: 5px; border-left: 4px solid #0073aa; }
+                .product-info { background: white; padding: 20px; margin: 20px 0; border-radius: 5px; }
+                .footer { background: #333; color: white; padding: 20px; text-align: center; font-size: 12px; }
+                .button { display: inline-block; background: #0073aa; color: white; padding: 10px 20px; text-decoration: none; border-radius: 3px; margin: 10px 0; }
+                .button:hover { background: #005a87; }
+                .highlight { background: #fff3cd; padding: 15px; border-radius: 5px; margin: 15px 0; }
+                table { width: 100%; border-collapse: collapse; margin: 15px 0; }
+                th, td { padding: 10px; text-align: left; border-bottom: 1px solid #ddd; }
+                th { background: #f8f9fa; font-weight: bold; }
+            </style>
+        </head>
+        <body>
+            <div class='container'>
+                <div class='header'>
+                    <h1>Co-Author Product Order Notification</h1>
+                    <p>{$site_name}</p>
+                </div>
+                
+                <div class='content'>
+                    <h2>Hello {$co_vendor->display_name},</h2>
+                    
+                    <p>Great news! A product you co-authored has been ordered.</p>
+                    
+                    <div class='highlight'>
+                        <strong>📦 Order Details:</strong>
+                        <ul>
+                            <li><strong>Order Number:</strong> #{$order_number}</li>
+                            <li><strong>Order Date:</strong> {$order_date}</li>
+                            <li><strong>Order Status:</strong> {$order_status}</li>
+                            <li><strong>Order Total:</strong> {$order_total}</li>
+                        </ul>
+                    </div>
+                    
+                    <div class='product-info'>
+                        <h3>🎯 Co-Authored Product:</h3>
+                        <table>
+                            <tr>
+                                <th>Product Name</th>
+                                <td><a href='{$product_url}' target='_blank'>{$product_name}</a></td>
+                            </tr>
+                            <tr>
+                                <th>Main Vendor</th>
+                                <td>{$main_vendor_name}</td>
+                            </tr>
+                            <tr>
+                                <th>Your Role</th>
+                                <td>Co-Author</td>
+                            </tr>
+                        </table>
+                    </div>
+                    
+                    <div class='order-details'>
+                        <h3>📋 Customer Information:</h3>
+                        <p><strong>Customer:</strong> {$order->get_billing_first_name()} {$order->get_billing_last_name()}</p>
+                        <p><strong>Email:</strong> {$order->get_billing_email()}</p>
+                        <p><strong>Phone:</strong> {$order->get_billing_phone()}</p>
+                    </div>
+                    
+                    <p>This notification is sent to keep you informed about orders for products you've co-authored. You can view more details about this order in your vendor dashboard.</p>
+                    
+                    <p style='text-align: center;'>
+                        <a href='{$site_url}' class='button'>Visit Store</a>
+                    </p>
+                </div>
+                
+                <div class='footer'>
+                    <p>This is an automated notification from {$site_name}</p>
+                    <p>If you have any questions, please contact the main vendor or store administrator.</p>
+                </div>
+            </div>
+        </body>
+        </html>";
+        
+        return $template;
+    }
+
+    /**
+     * Test email functionality (for debugging)
+     */
+    public function test_co_vendor_email($co_vendor_email = null) {
+        if (!$co_vendor_email) {
+            $co_vendor_email = get_option('admin_email');
+        }
+        
+        // Create a test co-vendor user
+        $test_co_vendor = (object) array(
+            'display_name' => 'Test Co-Vendor',
+            'user_email' => $co_vendor_email
+        );
+        
+        // Create a test order (mock)
+        $test_order = (object) array(
+            'get_order_number' => function() { return '12345'; },
+            'get_date_created' => function() { 
+                return (object) array('date_i18n' => function($format) { return date($format); });
+            },
+            'get_formatted_order_total' => function() { return '$99.99'; },
+            'get_status' => function() { return 'processing'; },
+            'get_user_id' => function() { return 1; },
+            'get_billing_first_name' => function() { return 'John'; },
+            'get_billing_last_name' => function() { return 'Doe'; },
+            'get_billing_email' => function() { return 'customer@example.com'; },
+            'get_billing_phone' => function() { return '123-456-7890'; }
+        );
+        
+        // Create a test product (mock)
+        $test_product = (object) array(
+            'get_name' => function() { return 'Test Product'; },
+            'get_id' => function() { return 123; }
+        );
+        
+        // Create a test main vendor (mock)
+        $test_main_vendor = (object) array(
+            'display_name' => 'Main Vendor'
+        );
+        
+        $subject = sprintf(
+            __('Co-Author Product Order Notification - Order #%s', 'wp-plugin-by-al'),
+            $test_order->get_order_number()
+        );
+        
+        $message = $this->get_co_vendor_email_template($test_co_vendor, $test_order, $test_product, $test_main_vendor);
+        
+        $headers = array(
+            'Content-Type: text/html; charset=UTF-8',
+            'From: ' . get_bloginfo('name') . ' <' . get_option('admin_email') . '>'
+        );
+        
+        $sent = wp_mail($co_vendor_email, $subject, $message, $headers);
+        
+        if ($sent) {
+            error_log("Test co-vendor email sent successfully to: " . $co_vendor_email);
+            return true;
+        } else {
+            error_log("Failed to send test co-vendor email to: " . $co_vendor_email);
+            return false;
         }
     }
 

@@ -139,7 +139,7 @@ class CoAuthor {
      * Register co-vendor email class with Dokan
      */
     public function register_co_vendor_email_class($email_classes) {
-        require_once dirname(__FILE__) . '/../Emails/CoVendorOrder.php';
+        require_once plugin_dir_path(__FILE__) . '../Emails/CoVendorOrder.php';
         $email_classes['Dokan_Email_Co_Vendor_Order'] = new \WeDevs\Dokan\Emails\CoVendorOrder();
         return $email_classes;
     }
@@ -397,8 +397,18 @@ class CoAuthor {
             font-weight: 500;
             text-transform: uppercase;
         }
-        
-        
+        .status-publish {
+            background: #d4edda;
+            color: #155724;
+        }
+        .status-draft {
+            background: #fff3cd;
+            color: #856404;
+        }
+        .status-pending {
+            background: #cce5ff;
+            color: #004085;
+        }
         .dokan-product-actions {
             display: flex;
             gap: 5px;
